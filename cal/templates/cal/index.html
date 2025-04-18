@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Calculator</title>
+    <style>
+        body {
+            background: #f1f2f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background: #222;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        .calculator input {
+            width: 100%;
+            height: 60px;
+            font-size: 2rem;
+            text-align: right;
+            margin-bottom: 10px;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 10px;
+            justify-content: center;
+        }
+        .buttons button {
+            height: 60px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #444;
+            color: white;
+            transition: transform 0.1s ease;
+        }
+        .buttons button:active {
+            transform: scale(0.95);
+        }
+        .buttons .equal { background: #2ecc71; }
+        .buttons .clear { background: #e74c3c; }
+        .result {
+            margin-top: 15px;
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="calculator">
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" id="display" name="expression" value="{{ expression }}" readonly>
+        <div class="buttons">
+            {% for val in button_list %}
+                {% if val == "C" %}
+                    <button type="button" onclick="clearDisplay()" class="clear">C</button>
+                {% elif val == "=" %}
+                    <button type="submit" class="equal">=</button>
+                {% else %}
+                    <button type="button" onclick="appendToDisplay('{{ val }}')">{{ val }}</button>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </form>
+    {% if result %}
+        <div class="result">= {{ result }}</div>
+    {% endif %}
+</div>
+
+<script>
+    function appendToDisplay(val) {
+        let display = document.getElementById('display');
+        if (display.value === 'Error') {
+            display.value = '';
+        }
+        display.value += val;
+    }
+
+    function clearDisplay() {
+        document.getElementById('display').value = '';
+    }
+
+    // Keyboard support
+    document.addEventListener('keydown', function(event) {
+        let key = event.key;
+        if (!isNaN(key) || ['+', '-', '*', '/'].includes(key)) {
+            appendToDisplay(key);
+        }
+        if (key === 'Enter') {
+            event.preventDefault();
+            document.querySelector('form').submit();
+        }
+        if (key === 'c' || key === 'C') {
+            clearDisplay();
+        }
+    });
+</script>
+</body>
+</html>
+
+
